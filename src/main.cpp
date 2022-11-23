@@ -7,6 +7,7 @@
 #include <wex.h>
 #include "cStarterGUI.h"
 
+/// A node with a location on the screen
 class cNode
 {
 public:
@@ -16,38 +17,46 @@ public:
         x = X;
         y = Y;
     }
+    /// @brief Is node near mouse curor
+    /// @param X
+    /// @param Y
+    /// @return true if cursor is close to node
     bool isNear(int X, int Y) const
     {
         return (abs(x - X) < 10 && abs(y - Y) < 10);
     }
 };
-
+/// @brief a link between two nodes
 class cLink
 {
-    public:
-    cNode& n1, n2;
-    cLink( cNode& a, cNode& b )
-    : n1(a), n2(b)
-    {}
-
+public:
+    cNode &n1, n2;
+    cLink(cNode &a, cNode &b)
+        : n1(a), n2(b)
+    {
+    }
 };
 
+/// @brief A graph pf nodes connected by links
 class cGraph
 {
 public:
-    std::vector<cNode> vN;
-    std::vector<cLink> vL;
-    int selected;
+    std::vector<cNode> vN; ///< the nodes
+    std::vector<cLink> vL; ///< the links
+    int selected;          ///< index of currently selected node
 
     cNode &addNode()
     {
         vN.push_back(cNode());
         return vN.back();
     }
-        void addLink( int n1, int n2 )
+    void addLink(int n1, int n2)
     {
-        vL.push_back( cLink( vN[n1], vN[n2] ));
+        vL.push_back(cLink(vN[n1], vN[n2]));
     }
+    /// @brief Select a node if there is one close to the mouse cursor
+    /// @param x 
+    /// @param y 
     void selectIfNear(int x, int y)
     {
         for (int kn = 0; kn < vN.size(); kn++)
@@ -60,7 +69,6 @@ public:
         }
         selected = -1;
     }
-
 };
 
 class cGUI : public cStarterGUI
@@ -80,9 +88,9 @@ public:
     }
 
 private:
-    cGraph G;
-    wex::menu *mRightClick;
-    wex::sMouse mouseStatus;
+    cGraph G;                   ///< the graph
+    wex::menu *mRightClick;     ///< pop-up menu to show when user clicks right mouse button
+    wex::sMouse mouseStatus;    ///< position of mouse cursor when a mouse bottun was pressed
 
     void ConstructMenu();
     void registerHandlers();
@@ -98,18 +106,18 @@ private:
 
 void cGUI::draw(wex::shapes &S)
 {
-    for( int kl = 0; kl < G.vL.size(); kl++)
+    for (int kl = 0; kl < G.vL.size(); kl++)
     {
-        auto& l = G.vL[kl];
-        S.line({l.n1.x,l.n1.y,
-           l.n2.x,l.n2.y });
+        auto &l = G.vL[kl];
+        S.line({l.n1.x, l.n1.y,
+                l.n2.x, l.n2.y});
     }
-    for( int kn = 0; kn < G.vN.size(); kn++ )
+    for (int kn = 0; kn < G.vN.size(); kn++)
     {
-        cNode& n = G.vN[kn];
-        S.color( 0x000000 );
-        if( kn == G.selected )
-            S.color(0x0000FF );
+        cNode &n = G.vN[kn];
+        S.color(0x000000);
+        if (kn == G.selected)
+            S.color(0x0000FF);
         S.circle(n.x, n.y, 10);
     }
 }
@@ -142,13 +150,12 @@ void cGUI::ConstructMenu()
                         { newNode(); });
     mRightClick->append("Link with selected", [&](const std::string &title)
                         { link(); });
-
 }
 
 void cGUI::leftClick()
 {
     auto m = fm.getMouseStatus();
-    G.selectIfNear( m.x,m.y);
+    G.selectIfNear(m.x, m.y);
     fm.update();
 }
 void cGUI::rightClick()
@@ -160,22 +167,22 @@ void cGUI::rightClick()
 void cGUI::newNode()
 {
     auto &n = G.addNode();
-    n.loc(mouseStatus.x,mouseStatus.y);
+    n.loc(mouseStatus.x, mouseStatus.y);
     fm.update();
 }
 
 void cGUI::link()
 {
-    if( G.selected < 0 )
+    if (G.selected < 0)
         return;
     int link = G.selected;
 
-    G.selectIfNear( mouseStatus.x,mouseStatus.y);
-    if( G.selected < 0 )
+    G.selectIfNear(mouseStatus.x, mouseStatus.y);
+    if (G.selected < 0)
         return;
-    if( G.selected == link )
+    if (G.selected == link)
         return;
-    G.addLink( link, G.selected );
+    G.addLink(link, G.selected);
     fm.update();
 }
 
