@@ -24,6 +24,6 @@ Create a graph containing nodes and links using the mouse.
      - move mouse cursor over node
      - press and hold left mouse button
      - drag mouse while holing down left button. 
-     - ( the node  and it links will follow the mouse curor )
+     - ( the node  and connected links will follow the mouse curor )
      - release button at reuired new location
      
