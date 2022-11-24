@@ -30,7 +30,7 @@ public:
 class cLink
 {
 public:
-    cNode &n1, n2;
+    cNode &n1, &n2;
     cLink(cNode &a, cNode &b)
         : n1(a), n2(b)
     {
@@ -55,19 +55,14 @@ public:
         vL.push_back(cLink(vN[n1], vN[n2]));
     }
     /// @brief Select a node if there is one close to the mouse cursor
-    /// @param x 
-    /// @param y 
-    void selectIfNear(int x, int y)
+    /// @param x
+    /// @param y
+    void selectIfNear(int x, int y);
+
+    void SelectedNodeMove(int x, int y)
     {
-        for (int kn = 0; kn < vN.size(); kn++)
-        {
-            if (vN[kn].isNear(x, y))
-            {
-                selected = kn;
-                return;
-            }
-        }
-        selected = -1;
+        if (selected >= 0)
+            vN[selected].loc(x, y);
     }
 };
 
@@ -77,7 +72,8 @@ public:
     cGUI()
         : cStarterGUI(
               "GraphEx",
-              {50, 50, 1000, 500})
+              {50, 50, 1000, 500}),
+          fTracking(false)
 
     {
         ConstructMenu();
@@ -88,9 +84,10 @@ public:
     }
 
 private:
-    cGraph G;                   ///< the graph
-    wex::menu *mRightClick;     ///< pop-up menu to show when user clicks right mouse button
-    wex::sMouse mouseStatus;    ///< position of mouse cursor when a mouse bottun was pressed
+    cGraph G;                ///< the graph
+    wex::menu *mRightClick;  ///< pop-up menu to show when user clicks right mouse button
+    wex::sMouse mouseStatus; ///< position of mouse cursor when a mouse bottun was pressed
+    bool fTracking;
 
     void ConstructMenu();
     void registerHandlers();
@@ -104,14 +101,30 @@ private:
     void draw(wex::shapes &S);
 };
 
+void cGraph::selectIfNear(int x, int y)
+{
+    for (int kn = 0; kn < vN.size(); kn++)
+    {
+        if (vN[kn].isNear(x, y))
+        {
+            selected = kn;
+            return;
+        }
+    }
+    selected = -1;
+}
+
 void cGUI::draw(wex::shapes &S)
 {
+    // draw links
+    S.color(0x000000);
     for (int kl = 0; kl < G.vL.size(); kl++)
     {
         auto &l = G.vL[kl];
         S.line({l.n1.x, l.n1.y,
                 l.n2.x, l.n2.y});
     }
+    // draw nodes
     for (int kn = 0; kn < G.vN.size(); kn++)
     {
         cNode &n = G.vN[kn];
@@ -140,6 +153,19 @@ void cGUI::registerHandlers()
         {
             rightClick();
         });
+    fm.events().mouseUp(
+        [this]
+        {
+            fTracking = false;
+        });
+    fm.events().mouseMove(
+        [this](wex::sMouse &m)
+        {
+            if (!fTracking)
+                return;
+            G.SelectedNodeMove(m.x, m.y);
+            fm.update();
+        });
 }
 void cGUI::ConstructMenu()
 {
@@ -154,6 +180,7 @@ void cGUI::ConstructMenu()
 
 void cGUI::leftClick()
 {
+    fTracking = true;
     auto m = fm.getMouseStatus();
     G.selectIfNear(m.x, m.y);
     fm.update();
