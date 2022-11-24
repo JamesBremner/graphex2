@@ -19,3 +19,11 @@ Create a graph containing nodes and links using the mouse.
      - click right mouse button
      - select "link" menu item from pop-up
      - link will be drawn between nodes
+ 
+ - Move node
+     - move mouse cursor over node
+     - press and hold left mouse button
+     - drag mouse while holing down left button. 
+     - ( the node  and it links will follow the mouse curor )
+     - release button at reuired new location
+     
