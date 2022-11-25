@@ -6,11 +6,18 @@ public:
     int myID;
     std::string myLabel;
     static int myLastID;
-    
+
+    /// CTOR with default ID
     cNode()
     {
         myID = ++myLastID;
     }
+    /// @brief CTOR with specified ID
+    /// @param id 
+    cNode( int id )
+    : myID( id )
+    {}
+
     void loc(int X, int Y)
     {
         x = X;
@@ -24,6 +31,15 @@ public:
     {
         return (abs(x - X) < 10 && abs(y - Y) < 10);
     }
+    std::string save()
+    {
+        std::stringstream ss;
+        std::string lbl = myLabel;
+        if( myLabel.empty() )
+            lbl = std::to_string( myID );
+        ss << "n "<< myID << " " << x << " " << y << " " << lbl << "\n";
+        return ss.str();
+    }
 };
 
 int cNode::myLastID = 0;
@@ -36,6 +52,12 @@ public:
     cLink(int a, int b)
         : n1(a), n2(b)
     {
+    }
+    std::string save()
+    {
+        std::stringstream ss;
+        ss <<"l "<< n1 << " " << n2 << "\n";
+        return ss.str();
     }
 };
 
@@ -52,6 +74,17 @@ public:
         : selected(-1)
     {
     }
+
+    void clear()
+    {
+        vN.clear();
+        vL.clear();
+        selected = -1;
+        prevSelected = -1;
+    }
+
+    void save(const std::string fname);
+    void read(const std::string fname);
 
     cNode &addNode()
     {

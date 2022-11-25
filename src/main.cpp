@@ -17,6 +17,7 @@ public:
 private:
     cGraphExGraph G; ///< the graph
     wex::menubar *mbar;
+    wex::menu *mFile;
     wex::menu *mView;
     wex::menu *mRightClick;  ///< pop-up menu to show when user clicks right mouse button
     wex::sMouse mouseStatus; ///< position of mouse cursor when a mouse bottun was pressed
@@ -102,6 +103,49 @@ void cGraphExGraph::selectedRemove()
     selected = -1;
 }
 
+void cGraphExGraph::save(const std::string fname)
+{
+    if (fname.empty())
+        return;
+    std::ofstream ofs(fname);
+    if (!ofs.is_open())
+        throw std::runtime_error("Cannot open save file");
+    for (auto &n : vN)
+        ofs << n.save();
+    for (auto &l : vL)
+        ofs << l.save();
+}
+
+void cGraphExGraph::read(const std::string fname)
+{
+    if (fname.empty())
+        return;
+    std::ifstream ifs(fname);
+    if (!ifs.is_open())
+        throw std::runtime_error("Cannot open read file");
+    clear();
+    char type;
+    while (ifs.good())
+    {
+        ifs >> type;
+        if (type == 'n')
+        {
+            int id;
+            ifs >> id;
+            cNode n(id);
+            ifs >> n.x >> n.y;
+            ifs >> n.myLabel;
+            vN.push_back(n);
+        }
+        else
+        {
+            int n1, n2;
+            ifs >> n1 >> n2;
+            vL.push_back(cLink(n1, n2));
+        }
+    }
+}
+
 cGUI::cGUI()
     : cStarterGUI(
           "GraphEx",
@@ -177,6 +221,29 @@ void cGUI::registerHandlers()
 void cGUI::ConstructMenu()
 {
     mbar = new wex::menubar(fm);
+
+    mFile = new wex::menu(fm);
+    mFile->append("New",
+                  [&](const std::string &title)
+                  {
+                      G.clear();
+                      fm.update();
+                  });
+    mFile->append("Save",
+                  [&](const std::string &title)
+                  {
+                      wex::filebox fb(fm);
+                      G.save(fb.save());
+                  });
+    mFile->append("Load",
+                  [&](const std::string &title)
+                  {
+                      wex::filebox fb(fm);
+                      G.read(fb.open());
+                      fm.update();
+                  });
+    mbar->append("File", *mFile);
+
     mView = new wex::menu(fm);
     mView->append("Node Labels",
                   [&](const std::string &title)
