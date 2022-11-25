@@ -126,5 +126,6 @@ public:
         return selected >= 0;
     }
     cNode &findNode(int id);
+    cNode &findNode(const std::string& label );
     cNode &selectedNode();
 };

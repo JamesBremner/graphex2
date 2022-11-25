@@ -42,6 +42,16 @@ cNode &cGraphExGraph::findNode(int id)
     }
     throw std::runtime_error("Cannot find node");
 }
+
+cNode &cGraphExGraph::findNode(const std::string &label)
+{
+    for (auto &n : vN)
+    {
+        if (n.myLabel == label)
+            return n;
+    }
+    throw std::runtime_error("Cannot find node");
+}
 cNode &cGraphExGraph::selectedNode()
 {
     if (selected < 0)
@@ -77,7 +87,20 @@ void cGraphExGraph::selectedLabel(const std::string &l)
 {
     if (selected < 0)
         return;
-    selectedNode().myLabel = l;
+    try
+    {
+        // check for duplicate label
+        findNode(l);
+    }
+    catch (...)
+    {
+        // no duplicate
+        // go ahead
+        selectedNode().myLabel = l;
+        return;
+    }
+    // dulpicate label
+    throw std::runtime_error("Dup label");
 }
 void cGraphExGraph::selectedRemove()
 {
@@ -267,7 +290,14 @@ void cGUI::ConstructMenu()
                             wex::inputbox ib;
                             ib.add("Label", "");
                             ib.showModal();
-                            G.selectedLabel(ib.value("Label"));
+                            try
+                            {
+                                G.selectedLabel(ib.value("Label"));
+                            }
+                            catch (...)
+                            {
+                                wex::msgbox mb("Duplicate label");
+                            }
                             fm.update();
                         });
     mRightClick->append("Delete",
