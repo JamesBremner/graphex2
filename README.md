@@ -39,3 +39,8 @@ Create a graph containing nodes and links using the mouse.
     - click right mouse button
     - select 'label node' item from popup menu
     - enter label
+
+- File Menu
+    - `File | New` restarts with a new empty graph
+    - `File | Save` save graph for recovery later
+    - `File | Load` loads graph saved previously
