@@ -30,13 +30,13 @@ OBJ_starter = \
 
 ### COMPILE
 
-$(ODIR)/%.o: %.cpp  
+$(ODIR)/%.o: %.cpp  graphexgraph.h
 	g++  $(CCflags) \
 	-c -o $@ $< $(INCS)
 
 starter: $(OBJ_starter)
 	g++ $(OPT) \
-	-o bin/starter.exe $^  \
+	-o bin/graphex.exe $^  \
 	$(static_link_flags) $(LIBS)
 
 .PHONY: clean
