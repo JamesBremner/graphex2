@@ -42,8 +42,6 @@ public:
     }
 };
 
-int cNode::myLastID = 0;
-
 /// @brief a link between two nodes
 class cLink
 {
@@ -119,6 +117,7 @@ public:
     }
     void selectedRemove();
 
+    std::string selectedLabel();
     void selectedLabel(const std::string &l);
 
     bool isSelected() const
