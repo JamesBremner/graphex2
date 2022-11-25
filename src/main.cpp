@@ -12,33 +12,22 @@
 class cGUI : public cStarterGUI
 {
 public:
-    cGUI()
-        : cStarterGUI(
-              "GraphEx",
-              {50, 50, 1000, 500}),
-          fTracking(false)
-
-    {
-        ConstructMenu();
-        registerHandlers();
-
-        show();
-        run();
-    }
+    cGUI();
 
 private:
-    cGraphExGraph G;         ///< the graph
+    cGraphExGraph G; ///< the graph
+    wex::menubar *mbar;
+    wex::menu *mView;
     wex::menu *mRightClick;  ///< pop-up menu to show when user clicks right mouse button
     wex::sMouse mouseStatus; ///< position of mouse cursor when a mouse bottun was pressed
     bool fTracking;
+    bool fLabel;
 
     void ConstructMenu();
     void registerHandlers();
 
     void rightClick();
     void leftClick();
-
-    void remove();
 
     void draw(wex::shapes &S);
 };
@@ -113,6 +102,20 @@ void cGraphExGraph::selectedRemove()
     selected = -1;
 }
 
+cGUI::cGUI()
+    : cStarterGUI(
+          "GraphEx",
+          {50, 50, 1000, 500}),
+      fTracking(false),
+      fLabel(false)
+{
+    ConstructMenu();
+    registerHandlers();
+
+    show();
+    run();
+}
+
 void cGUI::draw(wex::shapes &S)
 {
     // draw links
@@ -134,6 +137,8 @@ void cGUI::draw(wex::shapes &S)
         if (n.myID == G.selected)
             S.color(0x0000FF);
         S.circle(n.x, n.y, 10);
+        if (fLabel)
+            S.text(n.myLabel, {n.x + 10, n.y});
     }
 }
 void cGUI::registerHandlers()
@@ -171,6 +176,17 @@ void cGUI::registerHandlers()
 }
 void cGUI::ConstructMenu()
 {
+    mbar = new wex::menubar(fm);
+    mView = new wex::menu(fm);
+    mView->append("Node Labels",
+                  [&](const std::string &title)
+                  {
+                      fLabel = !fLabel;
+                      mView->check(0, fLabel);
+                      fm.update();
+                  });
+    mbar->append("View", *mView);
+
     mRightClick = new wex::menu(fm);
     mRightClick->append("Link with selected",
                         [&](const std::string &title)
