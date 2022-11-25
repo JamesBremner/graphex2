@@ -30,5 +30,5 @@ Create a graph containing nodes and links using the mouse.
 - Delete node
      - move mouse cursor over node
      - click right mouse button
-     - select "delete menu item from pop-up
+     - select "delete" menu item from pop-up
      - ( the node  and connected links will be deleted )
