@@ -4,9 +4,32 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
 #include "graphexgraph.h"
 
 int cNode::myLastID = 0;
+
+std::string cNode::save()
+{
+    std::stringstream ss;
+    ss << "n " << myID << " " << x << " " << y << " " 
+        << label() << "\n";
+    return ss.str();
+}
+
+std::string cNode::label() const
+{
+    if( myLabel.empty() )
+        return std::to_string( myID );
+    return myLabel;
+}
+
+std::string cLink::save()
+{
+    std::stringstream ss;
+    ss << "l " << n1 << " " << n2 << "\n";
+    return ss.str();
+}
 
 cNode &cGraphExGraph::findNode(int id)
 {
@@ -18,11 +41,11 @@ cNode &cGraphExGraph::findNode(int id)
     throw std::runtime_error("Cannot find node");
 }
 
-cNode &cGraphExGraph::findNode(const std::string &label) 
+cNode &cGraphExGraph::findNode(const std::string &label)
 {
     for (auto &n : vN)
     {
-        if (n.myLabel == label)
+        if (n.label() == label)
             return n;
     }
     throw std::runtime_error("Cannot find node");
@@ -62,7 +85,7 @@ std::string cGraphExGraph::selectedLabel()
 {
     if (selected < 0)
         return "";
-    return findNode(selected).myLabel;
+    return findNode(selected).label();
 }
 void cGraphExGraph::selectedLabel(const std::string &l)
 {
@@ -77,7 +100,7 @@ void cGraphExGraph::selectedLabel(const std::string &l)
     {
         // no duplicate
         // go ahead
-        selectedNode().myLabel = l;
+        selectedNode().label( l );
         return;
     }
     // dulpicate label
@@ -138,7 +161,9 @@ void cGraphExGraph::read(const std::string fname)
             ifs >> id;
             cNode n(id);
             ifs >> n.x >> n.y;
-            ifs >> n.myLabel;
+            std::string lbl;
+            ifs >> lbl;
+            n.label(lbl );
             vN.push_back(n);
         }
         else
@@ -149,3 +174,124 @@ void cGraphExGraph::read(const std::string fname)
         }
     }
 }
+
+std::vector< cLink*  > cGraphExGraph::findLinksSelectedNode()
+{
+    std::vector< cLink*  > ret;
+    if( ! isSelected() )
+        return ret;
+    for( auto& e : vL )
+    {
+        if( e.n1 == selected || e.n2 == selected )
+        {
+            ret.push_back( &e );
+        }
+    }
+    return ret;
+}
+
+// void cGraphExGraph::graphViz()
+// {
+//     bool isDirected = false;
+
+//     auto path = std::filesystem::temp_directory_path();
+//     std::cout << "RunDOT " << path << "\n";
+//     auto gdot = path / "g.dot";
+//     std::ofstream f(gdot);
+//     if (!f.is_open())
+//         throw std::runtime_error("Cannot open " + gdot.string());
+
+//     std::string graphvizgraph = "graph";
+//     std::string graphvizlink = "--";
+//     // if (isDirected())
+//     // {
+//     //     graphvizgraph = "digraph";
+//     //     graphvizlink = "->";
+//     // }
+
+//     f << graphvizgraph << " G {\n";
+//     for (auto& n : vN)
+//     {
+//         f << n.myLabel
+//           << " [  penwidth = 3.0 ];\n";
+//     }
+
+//     // std::cout << "pathViz " << pathText() << "\n";
+
+//     // loop over links
+//     for (auto &e : vL)
+//     {
+//         f << findNode(e.n1).myLabel << graphvizlink << findNode(e.n2).myLabel << "\n";
+//     }
+
+//     f << "}\n";
+
+//     f.close();
+
+//     STARTUPINFO si;
+//     PROCESS_INFORMATION pi;
+
+//     ZeroMemory(&si, sizeof(si));
+//     si.cb = sizeof(si);
+//     ZeroMemory(&pi, sizeof(pi));
+
+//     auto sample = path / "sample.png";
+//     std::string scmd = "dot -Kfdp -n -Tpng -Tdot -o " + sample.string() + " " + gdot.string();
+
+//     //std::cout << scmd << "\n";
+
+//     // Retain keyboard focus, minimize module2 window
+//     si.wShowWindow = SW_SHOWNOACTIVATE | SW_MINIMIZE;
+//     si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USEPOSITION;
+//     si.dwX = 600;
+//     si.dwY = 200;
+
+//     if (!CreateProcess(NULL,                 // No module name (use command line)
+//                        (char *)scmd.c_str(), // Command line
+//                        NULL,                 // Process handle not inheritable
+//                        NULL,                 // Thread handle not inheritable
+//                        FALSE,                // Set handle inheritance to FALSE
+//                        CREATE_NEW_CONSOLE,   //  creation flags
+//                        NULL,                 // Use parent's environment block
+//                        NULL,                 // Use parent's starting directory
+//                        &si,                  // Pointer to STARTUPINFO structure
+//                        &pi)                  // Pointer to PROCESS_INFORMATION structure
+//     )
+//     {
+//         int syserrno = GetLastError();
+//         if (syserrno == 2)
+//         {
+//             // wex::msgbox mb(
+//             //     "Cannot find executable file\n"
+//             //     "Is graphViz installed?");
+
+//             return;
+//         }
+//         //wex::msgbox mb("system error");
+//         // SetStatusText(wxString::Format("Sysem error no (%d)\n", GetLastError()));
+//         // wchar_t *lpMsgBuf;
+//         // FormatMessage(
+//         //     FORMAT_MESSAGE_ALLOCATE_BUFFER |
+//         //         FORMAT_MESSAGE_FROM_SYSTEM |
+//         //         FORMAT_MESSAGE_IGNORE_INSERTS,
+//         //     NULL,
+//         //     (DWORD)syserrno,
+//         //     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+//         //     (LPWSTR)&lpMsgBuf,
+//         //     0, NULL);
+
+//         // char errorbuf[200];
+//         // snprintf(errorbuf, 199,
+//         //          "Error is %S",
+//         //          lpMsgBuf);
+//         // LocalFree(lpMsgBuf);
+
+//         return;
+//     }
+
+//     // Close process and thread handles.
+//     CloseHandle(pi.hProcess);
+//     CloseHandle(pi.hThread);
+
+//     Sleep(1000);
+// }

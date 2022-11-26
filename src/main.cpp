@@ -30,6 +30,8 @@ private:
     void rightClick();
     void leftClick();
 
+void linkCosts();
+
     void draw(wex::shapes &S);
 };
 
@@ -70,7 +72,7 @@ void cGUI::draw(wex::shapes &S)
             S.color(0x0000FF);
         S.circle(n.x, n.y, 10);
         if (fLabel)
-            S.text(n.myLabel, {n.x + 10, n.y});
+            S.text(n.label(), {n.x + 10, n.y});
     }
 }
 void cGUI::registerHandlers()
@@ -165,6 +167,11 @@ void cGUI::ConstructMenu()
                             }
                             fm.update();
                         });
+    mRightClick->append("Link Costs",
+                        [&](const std::string &title)
+                        {
+linkCosts();
+                        });
     mRightClick->append("Delete",
                         [&](const std::string &title)
                         {
@@ -199,6 +206,34 @@ void cGUI::rightClick()
     // click on node, popup menu
     G.select(nodeClicked);
     mRightClick->popup(mouseStatus.x, mouseStatus.y);
+}
+
+void cGUI::linkCosts()
+{
+    auto ve = G.findLinksSelectedNode();
+    if( !ve.size() )
+        return;
+    wex::inputbox ib;
+    ib.text("Link costs from " + G.selectedNode().label() );
+    for( cLink* e : ve ) {
+        int ni = e->n1;
+        if( ni == G.selected )
+            ni = e->n2;
+        auto& n = G.findNode( ni );
+        ib.add(
+            n.label(),
+            std::to_string(e->cost())); 
+    }
+
+    ib.showModal();
+    
+    for( cLink* e : ve ) {
+        int ni = e->n1;
+        if( ni == G.selected )
+            ni = e->n2;
+        auto& n = G.findNode( ni );
+        e->cost(atof(ib.value( n.label()).c_str()));
+    }
 }
 
 main()

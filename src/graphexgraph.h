@@ -1,11 +1,14 @@
 /// A node with a location on the screen
 class cNode
 {
-public:
-    int x, y;
-    int myID;
     std::string myLabel;
     static int myLastID;
+
+public:
+
+    int x, y;
+    int myID;
+
 
     /// CTOR with default ID
     cNode()
@@ -31,31 +34,34 @@ public:
     {
         return (abs(x - X) < 10 && abs(y - Y) < 10);
     }
-    std::string save()
-    {
-        std::stringstream ss;
-        std::string lbl = myLabel;
-        if( myLabel.empty() )
-            lbl = std::to_string( myID );
-        ss << "n "<< myID << " " << x << " " << y << " " << lbl << "\n";
-        return ss.str();
-    }
+    std::string save();
+
+    void label( const std::string& l)
+        {
+            myLabel = l;
+        }
+    std::string label() const;
 };
 
 /// @brief a link between two nodes
 class cLink
 {
+        double myCost;
 public:
     int n1, n2; // IDs of nodes linked
+
     cLink(int a, int b)
         : n1(a), n2(b)
     {
     }
-    std::string save()
+    std::string save();
+    void cost( double c )
     {
-        std::stringstream ss;
-        ss <<"l "<< n1 << " " << n2 << "\n";
-        return ss.str();
+        myCost = c;
+    }
+    double cost() const
+    {
+        return myCost;
     }
 };
 
@@ -127,4 +133,8 @@ public:
     cNode &findNode(int id);
     cNode &findNode(const std::string& label );
     cNode &selectedNode();
+
+    std::vector< cLink*  > findLinksSelectedNode();
+
+    void graphViz();
 };
