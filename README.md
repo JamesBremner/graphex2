@@ -13,13 +13,6 @@ Create a graph containing nodes and links using the mouse.
      - click left mouse button
      - selected node will be drawn in red
      
- - Add link
-     - select first node
-     - move mouse cursor over second node
-     - click right mouse button
-     - select "link" menu item from pop-up
-     - link will be drawn between nodes
- 
  - Move node
      - move mouse cursor over node
      - press and hold left mouse button
@@ -39,6 +32,20 @@ Create a graph containing nodes and links using the mouse.
     - click right mouse button
     - select 'label node' item from popup menu
     - enter label
+
+ - Add link
+     - select first node
+     - move mouse cursor over second node
+     - click right mouse button
+     - select "link" menu item from pop-up
+     - link will be drawn between nodes
+ 
+ - Cost link
+    - move mouse cursor over node
+    - click right mouse button
+    - select 'link costs' item from popup menu
+    - popup inputbox shows costs assigned to all links from node
+    - edit costs of links as required
 
 - File Menu
     - `File | New` restarts with a new empty graph
