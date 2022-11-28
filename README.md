@@ -51,3 +51,6 @@ Create a graph containing nodes and links using the mouse.
     - `File | New` restarts with a new empty graph
     - `File | Save` save graph for recovery later
     - `File | Load` loads graph saved previously
+
+- Directed / Undirected
+    - By default, the graph is undirected.  To toggle between undirected and directed, select menu item `Graph | Directed', before adding any nodes to graph
