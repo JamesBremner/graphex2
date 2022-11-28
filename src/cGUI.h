@@ -61,3 +61,31 @@ public:
 protected:
     wex::gui &fm;
 };
+
+class cGUI : public cStarterGUI
+{
+public:
+    cGUI();
+
+private:
+    cGraphExGraph G; ///< the graph
+    wex::menubar *mbar;
+    wex::menu *mFile;
+    wex::menu *mView;
+    wex::menu *mGraph;
+    wex::menu *mRightClick;  ///< pop-up menu to show when user clicks right mouse button
+    wex::sMouse mouseStatus; ///< position of mouse cursor when a mouse bottun was pressed
+    bool fTracking;
+    bool fLabel;
+    bool fDirected;
+
+    void ConstructMenu();
+    void registerHandlers();
+
+    void rightClick();
+    void leftClick();
+
+    void linkCosts();
+
+    void draw(wex::shapes &S);
+};

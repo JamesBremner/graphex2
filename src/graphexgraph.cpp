@@ -12,15 +12,15 @@ int cNode::myLastID = 0;
 std::string cNode::save()
 {
     std::stringstream ss;
-    ss << "n " << myID << " " << x << " " << y << " " 
-        << label() << "\n";
+    ss << "n " << myID << " " << x << " " << y << " "
+       << label() << "\n";
     return ss.str();
 }
 
 std::string cNode::label() const
 {
-    if( myLabel.empty() )
-        return std::to_string( myID );
+    if (myLabel.empty())
+        return std::to_string(myID);
     return myLabel;
 }
 
@@ -76,6 +76,14 @@ void cGraphExGraph::link()
         return;
     vL.push_back(cLink(selected, prevSelected));
 }
+void cGraphExGraph::linkUndirected()
+{
+    if (selected < 0 || prevSelected < 0 ||
+        selected == prevSelected)
+        return;
+    vL.push_back(cLink(selected, prevSelected));
+    vL.push_back(cLink(prevSelected, selected));
+}
 
 void cGraphExGraph::selectIfNear(int x, int y)
 {
@@ -100,7 +108,7 @@ void cGraphExGraph::selectedLabel(const std::string &l)
     {
         // no duplicate
         // go ahead
-        selectedNode().label( l );
+        selectedNode().label(l);
         return;
     }
     // dulpicate label
@@ -130,20 +138,25 @@ void cGraphExGraph::selectedRemove()
     selected = -1;
 }
 
-void cGraphExGraph::save(const std::string fname)
+void cGraphExGraph::save(
+    const std::string fname,
+    bool fDirected )
 {
     if (fname.empty())
         return;
     std::ofstream ofs(fname);
     if (!ofs.is_open())
         throw std::runtime_error("Cannot open save file");
+    ofs << (int)fDirected << "\n";
     for (auto &n : vN)
         ofs << n.save();
     for (auto &l : vL)
         ofs << l.save();
 }
 
-void cGraphExGraph::read(const std::string fname)
+void cGraphExGraph::read(
+    const std::string fname,
+    bool& fDirected )
 {
     if (fname.empty())
         return;
@@ -151,6 +164,7 @@ void cGraphExGraph::read(const std::string fname)
     if (!ifs.is_open())
         throw std::runtime_error("Cannot open read file");
     clear();
+    ifs >> fDirected;
     char type;
     while (ifs.good())
     {
@@ -163,7 +177,7 @@ void cGraphExGraph::read(const std::string fname)
             ifs >> n.x >> n.y;
             std::string lbl;
             ifs >> lbl;
-            n.label(lbl );
+            n.label(lbl);
             vN.push_back(n);
         }
         else
@@ -175,16 +189,16 @@ void cGraphExGraph::read(const std::string fname)
     }
 }
 
-std::vector< cLink*  > cGraphExGraph::findLinksSelectedNode()
+std::vector<cLink *> cGraphExGraph::findLinksSelectedNode()
 {
-    std::vector< cLink*  > ret;
-    if( ! isSelected() )
+    std::vector<cLink *> ret;
+    if (!isSelected())
         return ret;
-    for( auto& e : vL )
+    for (auto &e : vL)
     {
-        if( e.n1 == selected || e.n2 == selected )
+        if (e.n1 == selected || e.n2 == selected)
         {
-            ret.push_back( &e );
+            ret.push_back(&e);
         }
     }
     return ret;

@@ -87,8 +87,8 @@ public:
         prevSelected = -1;
     }
 
-    void save(const std::string fname);
-    void read(const std::string fname);
+    void save(const std::string fname, bool fDirected);
+    void read(const std::string fname, bool& fDirected );
 
     cNode &addNode()
     {
@@ -98,6 +98,7 @@ public:
 
     /// @brief Link selected and previously selected nodes
     void link();
+    void linkUndirected();
 
     /// @brief node near location
     /// @param x
@@ -135,6 +136,11 @@ public:
     cNode &selectedNode();
 
     std::vector< cLink*  > findLinksSelectedNode();
+
+    int nodeCount() const
+    {
+        return vN.size();
+    }
 
     void graphViz();
 };
